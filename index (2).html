@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>祝福殷茂铜</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: KaiTi, "楷体_GB2312", serif;
+        }
+
+        body {
+            background-color: #f0f8ff;
+            text-align: center;
+            padding: 50px 0;
+        }
+
+        .title {
+            color: #e91e63;
+            font-size: 28px;
+            margin-bottom: 40px;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .btn {
+            background-color: #e91e63;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 18px;
+            padding: 12px 30px;
+            cursor: pointer;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+
+        .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            opacity: 1;
+        }
+
+        .blessing-popup {
+            position: fixed;
+            width: 220px;
+            height: 100px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 15px;
+            text-align: center;
+            font-size: 16px;
+            animation: popIn 0.3s ease-out forwards;
+            z-index: 1000;
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            80% {
+                transform: scale(1.05);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 5px;
+            right: 8px;
+            background: none;
+            border: none;
+            color: #333;
+            font-size: 18px;
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            transition: color 0.2s ease;
+        }
+
+        .close-btn:hover {
+            color: #e91e63;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="title">点击开始接收祝福吧！</h1>
+    <div class="btn-group">
+        <button id="startBtn" class="btn">开启祝福</button>
+        <button id="closeAllBtn" class="btn">关闭所有</button>
+    </div>
+
+    <script>
+        // 祝福列表
+        const normalBlessings = [
+            "殷茂铜",
+            "殷茂铜每天都有好心情！",
+            "殷茂铜成为最幸运的宝子！",
+            "殷茂铜世界上最可爱的人！",
+            "殷茂铜人人都能及时回消息",
+            "殷茂铜在学校里每天都轻松",
+            "每天都想见到你😊",
+            "有一个健康的身体！",
+            "每天都能开开心心！",
+            "殷茂铜家人都健健康康！"
+        ];
+        const specialBlessing = "殷茂铜是男通";
+
+        // 背景色列表
+        const bgColors = [
+            "#ffc0cb", "#ffb6c1", "#ff69b4", "#ff1493", "#db7093",
+            "#bc8f8f", "#c71585", "#ffa07a", "#ff7f50", "#ffa500",
+            "#ffffe0", "#e6e6fa", "#d8bfd8", "#dda0dd", "#ee82ee"
+        ];
+
+        const startBtn = document.getElementById("startBtn");
+        const closeAllBtn = document.getElementById("closeAllBtn");
+        let popupCount = 0; // 记录已生成的弹窗数量
+        let specialBlessingShown = false; // 特殊祝福是否已显示
+
+        // 生成随机位置（确保不超出屏幕）
+        function getRandomPosition() {
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+            const popupWidth = 220;
+            const popupHeight = 100;
+
+            // 确保弹窗完全在视口内
+            const maxLeft = windowWidth - popupWidth - 20;
+            const maxTop = windowHeight - popupHeight - 20;
+
+            const left = Math.max(20, Math.floor(Math.random() * maxLeft));
+            const top = Math.max(20, Math.floor(Math.random() * maxTop));
+
+            return { left, top };
+        }
+
+        // 创建单个祝福弹窗
+        function createBlessingPopup() {
+            if (popupCount >= 100) return;
+
+            const popup = document.createElement("div");
+            popup.className = "blessing-popup";
+
+            // 随机选择背景色
+            const randomBgColor = bgColors[Math.floor(Math.random() * bgColors.length)];
+            popup.style.backgroundColor = randomBgColor;
+
+            // 随机选择祝福内容（10%概率特殊祝福，且仅显示一次）
+            let blessingContent;
+            if (!specialBlessingShown && Math.random() < 0.1) {
+                blessingContent = specialBlessing;
+                specialBlessingShown = true;
+            } else {
+                blessingContent = normalBlessings[Math.floor(Math.random() * normalBlessings.length)];
+            }
+
+            // 创建关闭按钮
+            const closeBtn = document.createElement("button");
+            closeBtn.className = "close-btn";
+            closeBtn.textContent = "×";
+            closeBtn.addEventListener("click", () => {
+                popup.remove();
+                popupCount--;
+            });
+
+            // 组装弹窗
+            popup.textContent = blessingContent;
+            popup.appendChild(closeBtn);
+
+            // 设置随机位置
+            const { left, top } = getRandomPosition();
+            popup.style.left = `${left}px`;
+            popup.style.top = `${top}px`;
+
+            // 添加到页面
+            document.body.appendChild(popup);
+            popupCount++;
+        }
+
+        // 开启祝福按钮事件
+        startBtn.addEventListener("click", () => {
+            // 禁用按钮5秒
+            startBtn.disabled = true;
+            setTimeout(() => {
+                startBtn.disabled = false;
+            }, 5000);
+
+            // 重置特殊祝福状态
+            specialBlessingShown = false;
+
+            // 每隔50ms生成一个弹窗，共100个
+            let interval = setInterval(() => {
+                createBlessingPopup();
+                if (popupCount >= 100) {
+                    clearInterval(interval);
+                }
+            }, 50);
+        });
+
+        // 关闭所有按钮事件
+        closeAllBtn.addEventListener("click", () => {
+            // 移除所有弹窗
+            const allPopups = document.querySelectorAll(".blessing-popup");
+            allPopups.forEach(popup => popup.remove());
+            popupCount = 0;
+
+            // 重置特殊祝福状态
+            specialBlessingShown = false;
+
+            // 恢复开启祝福按钮可用
+            startBtn.disabled = false;
+        });
+    </script>
+</body>
+</html>
